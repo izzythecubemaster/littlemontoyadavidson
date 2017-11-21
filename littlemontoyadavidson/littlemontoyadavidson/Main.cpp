@@ -20,7 +20,7 @@ Main.cpp | P6 - Pacman
 */
 
 GLFWwindow *window = NULL;
-GLuint width = 1920, height = 1080;
+GLuint width = 1280, height = 720;
 Camera camera;
 
 
