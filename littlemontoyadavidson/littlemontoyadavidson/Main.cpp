@@ -20,7 +20,7 @@ Main.cpp | P6 - Pacman
 */
 
 GLFWwindow *window = NULL;
-GLuint width = 1280, height = 720;
+GLuint width = 3840, height = 2160;
 Camera camera;
 
 
@@ -32,22 +32,37 @@ int main(int argc, char** argv)
 	Display display(width, height, "Little Montoya Davidson | P6 - Pacman");
 	
 	//VP
-	mat4 view = look_at(vec3(0.0f, 30.0f, 30.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 view = look_at(vec3(5.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 1.0f , 0.0f));
 	mat4 proj = perspective(85.0f, (float)width / (float)height, 0.1f, 200.0f);
 
 	//making pacman object
-	Shader pacShader("shader");
-	ObjModel pacMan(&pacShader, "planet.obj");
-	pacShader.Use();
+	Shader pacTopShader("shader");
+	ObjModel pacTop(&pacTopShader, "pactop.obj");
+	pacTopShader.Use();
 	glActiveTexture(GL_TEXTURE0);
-	Texture pacTex("pacman.jpg");
-	Transform pacTrans;
-	pacTrans.SetScale(vec3(3.0f, 3.0f, 3.0f));
-	pacTrans.SetPos(vec3(0.0f, 3.0f, 0.0f));
-	mat4 pacModel = pacTrans.GetModel();
-	mat4 pacMVP = proj * view * pacModel;
-	GLuint pacMatrix = glGetUniformLocation(pacShader.GetProgramID(), "MVP");
-	glUniformMatrix4fv(pacMatrix, 1, GL_FALSE, pacMVP.m);
+	Texture pacTopTex("pactop.png");
+	Transform pacTopTrans;
+	pacTopTrans.SetScale(vec3(3.0f, 3.0f, 3.0f));
+	pacTopTrans.SetPos(vec3(0.0f, 3.0f, 0.0f));
+	//pacTopTrans.SetAngleX(-25.0f);
+	mat4 pacTopModel = pacTopTrans.GetModel();
+	mat4 pacTopMVP = proj * view * pacTopModel;
+	GLuint pacTopMatrix = glGetUniformLocation(pacTopShader.GetProgramID(), "MVP");
+	glUniformMatrix4fv(pacTopMatrix, 1, GL_FALSE, pacTopMVP.m);
+
+	Shader pacBotShader("shader");
+	ObjModel pacBot(&pacTopShader, "pachalf.obj");
+	pacBotShader.Use();
+	glActiveTexture(GL_TEXTURE0);
+	Texture pacBotTex("pacbot.png");
+	Transform pacBotTrans;
+	pacBotTrans.SetScale(vec3(3.0f, 3.0f, 3.0f));
+	//pacBotTrans.SetAngleX(25.0f);
+	pacBotTrans.SetPos(vec3(0.0f, 3.0f, 0.0f));
+	mat4 pacBotModel = pacBotTrans.GetModel();
+	mat4 pacBotMVP = proj * view * pacBotModel;
+	GLuint pacBotMatrix = glGetUniformLocation(pacTopShader.GetProgramID(), "MVP");
+	glUniformMatrix4fv(pacBotMatrix, 1, GL_FALSE, pacBotMVP.m);
 
 	//make plane and axes
 	Shader basicShader("basic");
@@ -63,26 +78,71 @@ int main(int argc, char** argv)
 
 
 	while (!glfwWindowShouldClose(window)) {
+		static double previous_seconds = glfwGetTime();
+		double current_seconds = glfwGetTime();
+		double elapsed_seconds = current_seconds - previous_seconds;
+		int speedTest = elapsed_seconds * 100;
+		double speed = elapsed_seconds * 100.0f;
 
 		//clear display
 		display.Clear(0.0f, 0.0f, 0.0f, 1.0f);
 		glDepthMask(GL_TRUE);
 
 		//pacman
-		pacShader.Use();
-		glBindVertexArray(pacMan.GetVAO()); //draw points from the currently bound VAO with current
-		pacTex.Bind(0);
-		glDrawArrays(GL_TRIANGLES, 0, pacMan.GetDrawCount());
-		pacMVP = proj * camera.GetWorldToViewMatrix() * pacModel;
-		glUniformMatrix4fv(pacMatrix, 1, GL_FALSE, pacMVP.m);
+		pacTopShader.Use();
+
+		// Pacman's top half animation
+		if (speedTest < 45) { pacTopTrans.SetAngleX(-speed); }
+		else if (speedTest >= 45 && speedTest < 90) { pacTopTrans.SetAngleX(speed - 90); }
+		else if (speedTest >= 90 && speedTest < 135) { pacTopTrans.SetAngleX(-speed + 90); }
+		else if (speedTest >= 135 && speedTest < 180) { pacTopTrans.SetAngleX(speed + 180); }
+		else if (speedTest >= 180 && speedTest < 225) { pacTopTrans.SetAngleX(-speed + 180); }
+		else if (speedTest >= 225 && speedTest < 270) { pacTopTrans.SetAngleX(speed + 90); }
+		else if (speedTest >= 270 && speedTest < 315) { pacTopTrans.SetAngleX(-speed - 90); }
+		else if (speedTest >= 315 && speedTest < 360) { pacTopTrans.SetAngleX(speed); }
+		else { pacTopTrans.SetAngleX(0); }
+
+		if (speedTest < 360) { pacTopTrans.SetPos(vec3(0.0f, 3.0f, speed / 15)); }
+		else { pacTopTrans.SetPos(pacTopTrans.GetPos()); }
+
+		glBindVertexArray(pacTop.GetVAO()); //draw points from the currently bound VAO with current
+		pacTopTex.Bind(0);
+		glDrawArrays(GL_TRIANGLES, 0, pacTop.GetDrawCount());
+		pacTopModel = pacTopTrans.GetModel();
+		pacTopMVP = proj * camera.GetWorldToViewMatrix() * pacTopModel;
+		glUniformMatrix4fv(pacTopMatrix, 1, GL_FALSE, pacTopMVP.m);
+
+		pacBotShader.Use();
+
+		//Pacman's bottom half animation
+		if (speedTest < 45) { pacBotTrans.SetAngleX(speed); }
+		else if (speedTest >= 45 && speedTest < 90) { pacBotTrans.SetAngleX(-speed + 90); }
+		else if (speedTest >= 90 && speedTest < 135) { pacBotTrans.SetAngleX(speed - 90); }
+		else if (speedTest >= 135 && speedTest < 180) { pacBotTrans.SetAngleX(-speed + 180); }
+		else if (speedTest >= 180 && speedTest < 225) { pacBotTrans.SetAngleX(speed + 180); }
+		else if (speedTest >= 225 && speedTest < 270) { pacBotTrans.SetAngleX(-speed - 90); }
+		else if (speedTest >= 270 && speedTest < 315) { pacBotTrans.SetAngleX(speed + 90); }
+		else if (speedTest >= 315 && speedTest < 360) { pacBotTrans.SetAngleX(-speed); }
+		else { pacBotTrans.SetAngleX(0); }
+
+		if (speedTest < 360) { pacBotTrans.SetPos(vec3(0.0f, 3.0f, speed / 15)); }
+		else { pacBotTrans.SetPos(pacBotTrans.GetPos()); }
+
+		glBindVertexArray(pacBot.GetVAO()); //draw points from the currently bound VAO with current
+		pacBotTex.Bind(0);
+		pacBotModel = pacBotTrans.GetModel();
+		pacBotMVP = proj * camera.GetWorldToViewMatrix() * pacBotModel;
+		glDrawArrays(GL_TRIANGLES, 0, pacBot.GetDrawCount());
+		glUniformMatrix4fv(pacBotMatrix, 1, GL_FALSE, pacBotMVP.m);
+
 
 		//axis
-		basicShader.Use();
+		/*basicShader.Use();
 		glBindVertexArray(plane.GetVAO());
 		glDrawElements(GL_TRIANGLES, plane.GetDrawCount(), GL_UNSIGNED_SHORT, (void*)0);
 		planeMVP = proj * camera.GetWorldToViewMatrix() * planeModel;
 		glUniformMatrix4fv(planeMatrix, 1, GL_FALSE, planeMVP.m);
-
+*/
 		
 		display.Update();
 	}

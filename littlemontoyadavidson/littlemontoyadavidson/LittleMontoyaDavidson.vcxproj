@@ -170,6 +170,7 @@
     <Library Include="glfw3.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Main.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Display.h" />

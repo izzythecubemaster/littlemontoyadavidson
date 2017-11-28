@@ -1,15 +1,15 @@
 #include "Camera.h"
 
 Camera::Camera():  //initalize camera
-	position(0.0f, 30.0f, 30.0f),
-	viewDirection(0.0f, 0.0f, -1.0f, 0.0),  //camera is looking down the -z axis - unit vector
+	position(-20.0f, 10.0f, 30.0f),
+	viewDirection(1.0f, 0.0f, -1.0f, 0.0),  //camera is looking down the -z axis - unit vector
 	UP(0.0f, 1.0f, 0.0f)	//y-dir pos is up
 {}
 
 void Camera::ResetLookAt()
 {
-	position = vec3(0.0f, 30.0f, 30.0f);
-	viewDirection = vec4(0.0f, 0.0f, -1.0f, 0.0);  //camera is looking down the -z axis - unit vector
+	position = vec3(-20.0f, 10.0f, 30.0f);
+	viewDirection = vec4(1.0f, 0.0f, -1.0f, 0.0);  //camera is looking down the -z axis - unit vector
 	UP = vec3(0.0f, 1.0f, 0.0f);	//y-dir pos is up
 }
 

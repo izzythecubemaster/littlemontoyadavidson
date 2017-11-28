@@ -16,7 +16,18 @@ Display::Display(GLuint width, GLuint height, string title)
 		fprintf(stderr, "ERROR: could not start GLFW3\n");
 	}
 
-	window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+	// GLFW Hints
+	//IJM: Enables 8x Anti-aliasing
+	glfwWindowHint(GLFW_SAMPLES, 4);
+
+	//window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+
+	//IJM: Start in Fullscreen
+	window = glfwCreateWindow(width, height, "Pacman Animation", glfwGetPrimaryMonitor(), NULL);
+	
+	//IJM: Locks mouse cursor in window
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	if (!window) {
 		fprintf(stderr, "ERROR: could not open window with GLFW3\n");
 		glfwTerminate();
@@ -52,6 +63,11 @@ void Display::Update()
 	glfwPollEvents();
 	/* put the stuff we've been drawing onto the display */
 	glfwSwapBuffers(window);
+
+	if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
+	{
+		glfwSetWindowShouldClose(window, 1);
+	}
 }
 
 void Display::Clear(GLfloat r, GLfloat g, GLfloat b, GLfloat a)

@@ -9,7 +9,7 @@ class Camera
 	vec3 UP;
 	vec3 oldMousePosition;
 	vec3 moveDirection;
-	const float MOVEMENT_SPEED = 0.1f;
+	const float MOVEMENT_SPEED = 1.0f;
 
 public:
 	Camera();
